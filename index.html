@@ -395,12 +395,13 @@ async function importFile(files){files=[].concat(files||[]);if(!files.length)ret
   if(!st.a&&!st.u){DATA=JSON.parse(bak);setMsg('Nothing imported. I could not find a Name column row (also needs Series and Department for running members and alumni).'+(diag.length?' Columns I found: '+diag.join(' | '):'')+(bad.length?' Problems: '+bad.slice(0,15).join(', '):''));return}
   if(!confirm('Rows by type: Running '+(kc.running||0)+', Alumni '+(kc.alumni||0)+', Committee '+(kc.committee||0)+'.\n\nImport result: '+st.a+' new, '+st.u+' updated, '+st.s+' skipped.'+(bad.length?'\n\nNot imported ('+bad.length+'): '+bad.slice(0,15).join(', ')+(bad.length>15?' …':''):'')+'\n\nSave the rest to the website now?')){DATA=JSON.parse(bak);setMsg('Import cancelled. Nothing was changed.');return}
   persist('Imported ✓ (Running '+(kc.running||0)+', Alumni '+(kc.alumni||0)+', Committee '+(kc.committee||0)+')  '+st.a+' new, '+st.u+' updated, '+st.s+' skipped'+(bad.length?'. Not imported: '+bad.slice(0,15).join(', ')+(bad.length>15?' …':''):''))}catch(e){DATA=JSON.parse(bak);setMsg('Import failed: '+(e&&e.message||e))}}
-async function bulkPhotos(files){if(!files.length)return;var ok=0,miss=[],all=DATA.members.concat(DATA.committee,DATA.leaders);
+function bOf(x){if(x.batch!==undefined&&String(x.batch).trim()!=='')return bnum(x.batch);var m=String(x.info||'').match(/(\d{1,3})(?!.*\d)/);return m?m[1]:''}
+async function bulkPhotos(files){if(!files.length)return;var ok=0,places=0,miss=[],all=DATA.members.concat(DATA.committee,DATA.leaders);
  for(var i=0;i<files.length;i++){var f=files[i],base=f.name.replace(/\.[^.]+$/,''),m=base.match(/^(.*)[_\-\s](\d{1,3})$/),nm=norm(m?m[1]:base),bt=m?m[2]:'';
-  var c=all.filter(function(x){return norm(x.name)===nm&&(!bt||x.batch===undefined||bnum(x.batch)===bt)});
-  if(c.length!==1){miss.push(f.name+(c.length>1?' (more than one match)':' (no match)'));continue}
-  setMsg('Uploading '+(i+1)+' of '+files.length+'…');try{c[0].image=await upImg(f,600);ok++}catch(e){miss.push(f.name+' (upload failed)')}}
- persist('Photos matched: '+ok+' of '+files.length+(miss.length?'. Not matched: '+miss.slice(0,12).join(', ')+(miss.length>12?' …':''):''))}
+  var c=all.filter(function(x){var xb=bOf(x);return norm(x.name)===nm&&(!bt||!xb||xb===bt)});
+  if(!c.length){miss.push(f.name+' (no match)');continue}var sr=uniq(c.map(bOf).filter(Boolean));if(!bt&&sr.length>1){miss.push(f.name+' (same name in series '+sr.join(', ')+': add the series to the file name)');continue}
+  setMsg('Uploading '+(i+1)+' of '+files.length+'…');try{var u=await upImg(f,600);c.forEach(function(x){x.image=u});ok++;places+=c.length}catch(e){miss.push(f.name+' (upload failed)')}}
+ persist('Photos matched: '+ok+' of '+files.length+' ('+places+' places updated)'+(miss.length?'. Not matched: '+miss.slice(0,12).join(', ')+(miss.length>12?' …':''):''))}
 async function backup(){setMsg('Preparing backup…');try{await loadXLSX();var wb=XLSX.utils.book_new(),add=function(n,a){if(a.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(a),n)};
  add('Running',DATA.members.filter(function(m){return m.type==='running'}));add('Alumni',DATA.members.filter(function(m){return m.type==='alumni'}));
  add('Committee',DATA.leaders.map(function(l){return{term:termOf(l),role:l.role,name:l.name,info:l.info,whatsapp:l.whatsapp,facebook:l.facebook,image:l.image}}).concat(DATA.committee.map(function(c){return{term:termOf(c),role:c.role,name:c.name,batch:c.batch,dept:c.dept,whatsapp:c.whatsapp,facebook:c.facebook,image:c.image}})));
