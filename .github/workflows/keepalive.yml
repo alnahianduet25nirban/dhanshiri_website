@@ -1,0 +1,39 @@
+# Keeps the free Supabase project awake (it pauses after 7 days without database activity).
+# It reads the URL and the PUBLIC key from config.js in this repository and asks the database
+# for one row every 2 days. No secrets are needed.
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: '23 4 */2 * *'      # every 2 days at 04:23 UTC
+  workflow_dispatch:            # lets you press "Run workflow" by hand
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ask the database for one row
+        run: |
+          URL=$(grep -oE "https://[A-Za-z0-9-]+\.supabase\.co" config.js | head -1)
+          KEY=$(grep -oE "(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_.-]+)" config.js | head -1)
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "Could not read the Supabase URL or key from config.js"; exit 1
+          fi
+          echo "Project: $URL"
+          if [[ "$KEY" == eyJ* ]]; then
+            CODE=$(curl -s -o /tmp/out.txt -w "%{http_code}" "$URL/rest/v1/site_data?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          else
+            CODE=$(curl -s -o /tmp/out.txt -w "%{http_code}" "$URL/rest/v1/site_data?select=id&limit=1" -H "apikey: $KEY")
+          fi
+          echo "HTTP status: $CODE"
+          cat /tmp/out.txt; echo
+          if [ "$CODE" != "200" ]; then
+            echo "The ping failed. If the project is paused, resume it in the Supabase dashboard."; exit 1
+          fi
