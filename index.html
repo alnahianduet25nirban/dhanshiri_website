@@ -137,7 +137,7 @@ textarea{width:100%;min-height:110px}
 footer{background:var(--ink);color:#b9d6ee;text-align:center;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));font-size:.95rem}
 footer b{color:var(--sun)}
 footer{position:relative}
-.dev{position:absolute;right:16px;bottom:12px;text-align:left}
+.dev{position:absolute;left:16px;bottom:12px;text-align:left}
 .dev a,.dev>div{display:flex;align-items:center;gap:10px;text-decoration:none;color:#b9d6ee;background:#ffffff14;border-radius:14px;padding:6px 12px 6px 6px;max-width:260px;transition:background .25s}
 .dev a:hover{background:#ffffff26}
 .dev img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--sun);flex:none}
@@ -198,13 +198,16 @@ h2{font-size:1.55rem;margin-top:30px}
 @media(max-width:760px){.ev2 .dot{left:-27px}.yh{font-size:1.5rem}}
 .yb.on{background:var(--blue);color:#fff;border-color:var(--blue)}.yb.on i{background:linear-gradient(var(--sun),#fff)}
 #prog{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:4px;width:0;background:linear-gradient(90deg,var(--sun),var(--leaf),var(--blue));z-index:40;transition:width .1s}
-#totop{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:1.3rem;cursor:pointer;box-shadow:0 8px 20px #0a5cae66;opacity:0;transform:translateY(20px) scale(.8);pointer-events:none;transition:opacity .3s,transform .3s;z-index:25}
+#totop{position:fixed;right:16px;bottom:calc(64px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:1.3rem;cursor:pointer;box-shadow:0 8px 20px #0a5cae66;opacity:0;transform:translateY(20px) scale(.8);pointer-events:none;transition:opacity .3s,transform .3s;z-index:25}
 #totop.show{opacity:1;transform:none;pointer-events:auto}#totop:hover{background:var(--deep)}
 .btn{position:relative;overflow:hidden}.rip{position:absolute;border-radius:50%;background:#ffffff66;transform:scale(0);animation:rip .6s ease-out;pointer-events:none}@keyframes rip{to{transform:scale(4);opacity:0}}
 .person img{transition:transform .35s}.person:hover img{transform:scale(1.1) rotate(4deg)}
 .ev2 .dot{animation:dotp 2.4s ease-in-out infinite}@keyframes dotp{50%{box-shadow:0 0 0 8px #1b8fe333}}
 .slide .cap h1,.slide .cap p{opacity:0;transform:translateY(26px);transition:opacity .7s .25s,transform .7s .25s}.slide.on .cap h1,.slide.on .cap p{opacity:1;transform:none}.slide.on .cap p{transition-delay:.4s}
 nav a,.ddb{position:relative}nav>a::after{content:"";position:absolute;left:14px;right:14px;bottom:3px;height:2px;background:var(--sun);transform:scaleX(0);transition:transform .3s}nav>a:hover::after{transform:scaleX(1)}nav>a.on::after{display:none}
+.dev a,.dev>div{animation:devblink 1.8s ease-in-out infinite}.dev img{animation:devglow 1.8s ease-in-out infinite}
+@keyframes devblink{0%,100%{opacity:1}50%{opacity:.35}}@keyframes devglow{0%,100%{box-shadow:0 0 0 0 #f3ee3c00}50%{box-shadow:0 0 0 6px #f3ee3caa}}
+.dev:hover a,.dev:hover>div{animation-play-state:paused;opacity:1}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition-duration:.01s!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
